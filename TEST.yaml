@@ -22,7 +22,7 @@ spec:
       containers:
         - name: nginx
           image: 'nginx:1.23'
-          imagePullPolicy: IfNotPresent     # Чтобы постояно не скачивать образ
+          imagePullPolicy: IfNotPresent     # Чтобы постояно не пулить образ
           ports:
             - name: nginx-port           # Имя порта при обращении
               containerPort: 8080
@@ -36,7 +36,7 @@ spec:
               cpu: '1'
 		   args:			# Использовать при старте 1 ЦП
 		     - -cpus
-			 - "1"
+		     - "1"
           livenessProbe:              # Проба на: жив ли контейнер
             failureThreshold: 3       # Кол-во фейловых срабатываний
             initialDelaySeconds: 10   # Задержка 10 сек до пробы
