@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-web-deployment
+  labels:
+    app: web
+spec:
+  selector:
+    matchLabels:
+      app: my-webapp
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1    # Макс. число подов недоступных при обнове 
+      maxSurge: 1          # Макс. число подов сверх всех подов при обнове
+  template:
+    metadata:
+      labels:
+        app: my-webapp       
+    spec:
+      containers:
+        - name: nginx
+          image: 'nginx:1.23'
+          imagePullPolicy: IfNotPresent     # Чтобы постояно не скачивать образ
+          ports:
+            - name: nginx-port           # Имя порта при обращении
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:		  # Мин. требования
+              memory: '128'
+              cpu: '0.1'
+            limits:           # Макс. лимиты
+              memory: '128'
+              cpu: '1'
+		   args:			# Использовать при старте 1 ЦП
+		     - -cpus
+			 - "1"
+          livenessProbe:              # Проба на: жив ли контейнер
+            failureThreshold: 3       # Кол-во фейловых срабатываний
+            initialDelaySeconds: 10   # Задержка 10 сек до пробы
+            periodSeconds: ''
+            httpGet:
+              path: /
+              port: nginx-port
+          readinessProbe:              # Проба на: стоит ли направлять трафик на контейнер
+            failureThreshold: 3
+            initialDelaySeconds: 10    # Задержка 10 сек до пробы
+            httpGet:                   # Проверка хттп гетом
+              path: /                  # на корень
+              port: nginx-port              
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - web
+                topologyKey: kubernetes.io/hostname
