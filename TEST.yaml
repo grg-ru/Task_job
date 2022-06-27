@@ -70,22 +70,22 @@ spec:
                 topologyKey: kubernetes.io/hostname
 ---
 apiVersion: autoscaling/v2beta1
-kind: HorizontalPodAutoscaler
+kind: HorizontalPodAutoscaler                 # Автоскелер
 metadata:
   labels:
     app: autoscaling-deployment
   name: autoscaling-web-app
   #namespace: autoscaling-namespace
 spec:
-  scaleTargetRef:
+  scaleTargetRef:                              # Цель скалирования
     apiVersion: apps/v1
-    kind: Deployment
-    name: autoscaling-deployment
+    kind: Deployment                
+    name: my-web-deployment                    # Наш деплой
   minReplicas: 2
   maxReplicas: 10
   metrics:
     - type: Resource
-      resource:
+      resource:                                 # Будет скалировать если более 80% цп занято и соответственно также с ОЗУ
         name: cpu
         targetAverageUtilization: 80
     - type: Resource
